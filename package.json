@@ -1,0 +1,27 @@
+{
+  "name": "dylan-wave-ai",
+  "version": "1.0.0",
+  "description": "Dylan Wave AI - AI-powered trading platform with demo trading, intelligent market analysis, secure wallets, user authentication, and admin dashboard",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "start": "npm start --workspaces",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "keywords": [
+    "trading",
+    "ai",
+    "finance",
+    "crypto",
+    "demo-trading",
+    "market-analysis"
+  ],
+  "author": "Dylan Wave AI",
+  "license": "MIT"
+}
