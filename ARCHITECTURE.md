@@ -7,7 +7,7 @@ dylan-wave-ai/
 ├── frontend/              # Next.js 15 React application
 ├── backend/               # FastAPI Python application
 ├── docker-compose.yml     # Multi-container orchestration
-├── README.md              # Project documentation
+├─��� README.md              # Project documentation
 ├── ARCHITECTURE.md        # This file
 └── package.json           # Root workspace configuration
 ```

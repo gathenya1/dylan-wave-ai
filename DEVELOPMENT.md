@@ -114,7 +114,7 @@ frontend/
 ├── lib/                  # External library integrations
 ├── public/               # Static assets
 ├── next.config.js        # Next.js configuration
-├─��� tsconfig.json         # TypeScript configuration
+├── tsconfig.json         # TypeScript configuration
 ├── tailwind.config.js    # Tailwind CSS configuration
 └── package.json          # Dependencies
 ```
@@ -126,7 +126,7 @@ backend/
 │   ├── api/              # API route handlers
 │   │   ├── auth/        # Authentication endpoints
 │   │   ├── users/       # User endpoints
-│   │   ├── trades/      # Trading endpoints
+��   │   ├── trades/      # Trading endpoints
 │   │   ├── markets/     # Market data endpoints
 │   │   └── admin/       # Admin endpoints
 │   ├── models/          # SQLAlchemy ORM models
