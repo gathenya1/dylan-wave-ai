@@ -106,6 +106,73 @@ class MarketResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class MarketCreate(BaseModel):
+    symbol: str = Field(..., min_length=1, max_length=20)
+    name: str = Field(..., min_length=1, max_length=255)
+    price: float = Field(..., gt=0)
+    change_24h: float
+    volume: float = Field(..., ge=0)
+    market_cap: Optional[float] = None
+
+# Price History Schemas
+class PriceHistoryResponse(BaseModel):
+    id: str
+    market_id: str
+    symbol: str
+    open_price: float
+    high_price: float
+    low_price: float
+    close_price: float
+    volume: float
+    timestamp: datetime
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class PriceHistoryCreate(BaseModel):
+    market_id: str
+    symbol: str
+    open_price: float
+    high_price: float
+    low_price: float
+    close_price: float
+    volume: float
+    timestamp: datetime
+
+# Market Snapshot Schemas
+class MarketSnapshotResponse(BaseModel):
+    id: str
+    market_id: str
+    symbol: str
+    open_price: float
+    high_price: float
+    low_price: float
+    close_price: float
+    volume: float
+    change_percent: float
+    change_amount: float
+    timestamp: datetime
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# Watchlist Schemas
+class WatchlistCreate(BaseModel):
+    market_id: str
+    symbol: str
+
+class WatchlistResponse(BaseModel):
+    id: str
+    user_id: str
+    market_id: str
+    symbol: str
+    added_at: datetime
+    
+    class Config:
+        from_attributes = True
+
 # Error Response
 class ErrorResponse(BaseModel):
     detail: str
@@ -116,5 +183,24 @@ class ErrorResponse(BaseModel):
             "example": {
                 "detail": "Error message",
                 "status_code": 400
+            }
+        }
+
+# WebSocket Message Schemas
+class PriceUpdateMessage(BaseModel):
+    symbol: str
+    price: float
+    change_24h: float
+    volume: float
+    timestamp: datetime
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "symbol": "BTC",
+                "price": 43250.50,
+                "change_24h": 2.5,
+                "volume": 28500000000,
+                "timestamp": "2026-07-11T12:00:00Z"
             }
         }

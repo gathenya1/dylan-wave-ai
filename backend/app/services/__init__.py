@@ -1,1 +1,1 @@
-# Dylan Wave AI Services Package
+"""Services package."""

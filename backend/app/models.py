@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Boolean, Float
+from sqlalchemy import Column, String, DateTime, Boolean, Float, Integer, ForeignKey, Index
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -53,3 +53,64 @@ class Market(Base):
     volume = Column(Float, nullable=False)
     market_cap = Column(Float, nullable=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    
+    __table_args__ = (
+        Index('idx_market_symbol', 'symbol'),
+        Index('idx_market_updated', 'updated_at'),
+    )
+
+class PriceHistory(Base):
+    """Historical price data for markets"""
+    __tablename__ = "price_history"
+    
+    id = Column(String(36), primary_key=True, index=True)
+    market_id = Column(String(36), ForeignKey("markets.id"), nullable=False, index=True)
+    symbol = Column(String(20), nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    volume = Column(Float, nullable=False)
+    timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+    __table_args__ = (
+        Index('idx_price_history_symbol_timestamp', 'symbol', 'timestamp'),
+        Index('idx_price_history_market_timestamp', 'market_id', 'timestamp'),
+    )
+
+class MarketSnapshot(Base):
+    """Current market snapshot with OHLCV data"""
+    __tablename__ = "market_snapshots"
+    
+    id = Column(String(36), primary_key=True, index=True)
+    market_id = Column(String(36), ForeignKey("markets.id"), nullable=False, index=True)
+    symbol = Column(String(20), nullable=False, index=True)
+    open_price = Column(Float, nullable=False)
+    high_price = Column(Float, nullable=False)
+    low_price = Column(Float, nullable=False)
+    close_price = Column(Float, nullable=False)
+    volume = Column(Float, nullable=False)
+    change_percent = Column(Float, nullable=False)
+    change_amount = Column(Float, nullable=False)
+    timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+    __table_args__ = (
+        Index('idx_snapshot_symbol_timestamp', 'symbol', 'timestamp'),
+    )
+
+class Watchlist(Base):
+    """User watchlist for tracking markets"""
+    __tablename__ = "watchlist"
+    
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), nullable=False, index=True)
+    market_id = Column(String(36), ForeignKey("markets.id"), nullable=False, index=True)
+    symbol = Column(String(20), nullable=False)
+    added_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+    __table_args__ = (
+        Index('idx_watchlist_user', 'user_id'),
+        Index('idx_watchlist_user_market', 'user_id', 'market_id'),
+    )
