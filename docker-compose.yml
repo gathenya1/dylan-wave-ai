@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: dylan-wave-ai-postgres
+    environment:
+      POSTGRES_USER: dylan_user
+      POSTGRES_PASSWORD: dylan_secure_password
+      POSTGRES_DB: dylan_wave_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dylan_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dylan-network
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: dylan-wave-ai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dylan-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dylan-wave-ai-backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - DATABASE_URL=postgresql://dylan_user:dylan_secure_password@postgres:5432/dylan_wave_ai
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-super-secret-jwt-key-change-this-in-production}
+      - JWT_ALGORITHM=HS256
+      - JWT_EXPIRATION_HOURS=24
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=True
+      - ENVIRONMENT=development
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - dylan-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dylan-wave-ai-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_APP_NAME=Dylan Wave AI
+      - NEXT_PUBLIC_APP_DESCRIPTION=AI-powered trading platform
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - dylan-network
+
+  # Adminer (Database Management UI)
+  adminer:
+    image: adminer:latest
+    container_name: dylan-wave-ai-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - dylan-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  dylan-network:
+    driver: bridge
